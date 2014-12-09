@@ -1,77 +1,126 @@
-/*
- * main.js
- * Copyright (C) 2014 ALDO <ALDO@SVR-Pixel>
- *
- * Distributed under terms of the MIT license.
- */
+(function(){
+   window.App = {
+        Models: {},
+        Collections:{},
+        Views:{}
+    };
+    window.template = function(id){
+        return _.template($('#'+id).html()); 
+    };
 
-var trans = [
-    {id: 1 , tipo: "Transferência", data: "12/05/2014", desc: "Lorem Ipsum", valor: 260 },
-    {id: 2 , tipo: "Transferência", data: "12/05/2014", desc: "Lorem Ipsum", valor: 260 },
-    {id: 3 , tipo: "Transferência", data: "12/05/2014", desc: "Lorem Ipsum", valor: 260 },
-    {id: 4 , tipo: "Transferência", data: "12/05/2014", desc: "Lorem Ipsum", valor: 260 },
-    {id: 5 , tipo: "Transferência", data: "12/05/2014", desc: "Lorem Ipsum", valor: 260 },
-    {id: 6 , tipo: "Transferência", data: "12/05/2014", desc: "Lorem Ipsum", valor: 260 },
-    {id: 7 , tipo: "Transferência", data: "12/05/2014", desc: "Lorem Ipsum", valor: 260 }
-];
-//Transaction Model
-var Transaction = Backbone.Model.extend({});
+    App.Models.Task = Backbone.Model.extend({
+        validate: function (attrs){
+            if( !$.trim(attrs.title) ){
+                return 'A task requires a valid title'; 
+            } 
+        } 
+    });
 
-//TransactionCollection
-var TransactionCollection = Backbone.Collection.extend({
-    model: Transaction
-});
+    App.Collections.Tasks = Backbone.Collection.extend({
+        model: App.Models.Task 
+    });
 
-var TransactionView = Backbone.View.extend({
-    template: _.template($("#trans-template").html()),
+    App.Views.AddTask = Backbone.View.extend({
+        initialize: function() {
+        },
 
-    render:function (){
-        $('.col-lg-12 *').remove()
-        $('.col-lg-12').append(this.template(this.collection));
-        return this;
-    }
+        el: '#addTask',
 
-});
+        events: {
+            'submit':'submit' 
+        },
+        
+        submit: function(e) {
+            e.preventDefault();
 
-var TransactionForm = Backbone.View.extend({
-    template: _.template($("#trans-form").html()),
+            var newTaskTitle = $(e.currentTarget).find('input[type=text]').val();
+            var task = new App.Models.Task({title: newTaskTitle});
+            this.collection.add(task);
+        }
 
-    render:function (){
-        $('.col-lg-12 *').remove()
-        $('.col-lg-12').append(this.template());
-        return this;
-    },
-    events: {
-        'submit form': 'saveItem'
-    },
-    saveItem: function (e) {
-        alert('wowo');
-        e.preventDefault();
-    }
 
-});
+            
+    });
 
-var transCollection = new TransactionCollection(trans);
-var transView       = new TransactionView;
-var transForm       = new TransactionForm;
+    App.Views.Tasks = Backbone.View.extend({
+        initialize: function() {
+            this.collection.on('add', this.addOne, this);
+        },
 
-var TransactionRoutes = Backbone.Router.extend({
-    routes: {
-        ""      : "index",
-    "create": "createForm",
-    "delete/:id": "delete",
-    "edit/:id"  : "editForm",
-    "trans/:id"  : "editForm",
-    }
-});
-appRoute = new TransactionRoutes;
-appRoute.on('route:createForm', function(){
-    $('.page-header h1').text('Nova Transação');
-    transForm.render();
+        tagName:'ul',
 
-});
-appRoute.on('route:index', function(){
-    $('.page-header h1').text('Todas Transações');
-    transView.render();
-});
-Backbone.history.start();
+        render: function(){
+            this.collection.each(this.addOne, this);
+            return this;
+        },        
+        
+        addOne: function(task) {
+            var taskView = new App.Views.Task({ model: task });
+            this.$el.append(taskView.render().el);
+        }
+    });
+
+    App.Views.Task = Backbone.View.extend({
+        initialize: function() {
+            this.model.on('change', this.render,this);
+            this.model.on('destroy', this.remove,this);
+        },
+
+        tagName: 'li', 
+
+        template: template('taskTemplate'),
+
+
+        events:{
+            'click .edit'   :'editTask',
+            'click .delete' :'destroy'
+        },
+        
+        destroy: function() {
+            this.model.destroy();
+        },
+
+        remove: function() {
+            this.$el.remove();            
+        },
+        
+
+        editTask: function() {
+            var newTaskTitle = prompt('Edit the task:', this.model.get('title'));
+            //if( !newTaskTitle ) return
+            this.model.set('title', newTaskTitle, {validate: true});
+        },
+        
+        render: function(){
+            var template = this.template(this.model.toJSON()); 
+            this.$el.html( template ); 
+            return this;
+        }
+    });
+
+    window.tasksCollection = new App.Collections.Tasks([
+        {
+            title:'Go to the Store',
+            priority: 4
+        },
+        {
+            title:'Go to the Gym',
+            priority: 1
+        },
+        {
+            title:'Potatos',
+            priority: 2
+        },
+        {
+            title:'Go to the Job',
+            priority: 4
+        }
+    ]);
+    
+    var addTaskView = new App.Views.AddTask({ collection: tasksCollection });
+    var taskView = new App.Views.Tasks({ collection: tasksCollection });
+    taskView.render()
+    $('.col-lg-12').append(taskView.el);
+
+})();
+
