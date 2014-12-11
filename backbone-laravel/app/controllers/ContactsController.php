@@ -88,7 +88,7 @@ class ContactsController extends \BaseController {
     */
     public function destroy($id)
     {
-        return Contact::find($id)->destroy();
+        return Contact::destroy($id);
     }
 
 
