@@ -3,25 +3,29 @@ App.Router = Backbone.Router.extend({
     initialize: function() {
         this.formContact = $('#addContact');
         this.tableContacts = $('#tableContacts');
-        this.on('change', this.startPage(), this);
     },
-    
+
     startPage: function () {
-        this.formContact.hide();
-        this.tableContacts.hide();
+        console.log('Routing...');
     },
 
     routes:{
         "":'index', 
-        "create":'create', 
+        "*default":'default', 
+
+        "create"            :'create', 
+        "contact/:id"       :'show', 
+        "contact/:id/edit"  :'edit', 
+        "contact/:id/delete":'delete', 
     },
     
     index: function() {
+        this.formContact.hide();
         this.tableContacts.show();
-    },
+    }, 
 
     create: function() {
-        console.log('asdlkjsdlakjdlkajds');
+        this.tableContacts.hide();
         this.formContact.show();
     },
 

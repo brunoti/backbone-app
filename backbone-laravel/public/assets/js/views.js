@@ -35,6 +35,8 @@ App.Views.AddContact = Backbone.View.extend({
         }, { wait: true });
         
         this.clearForm(); 
+        router.navigate('/', {trigger: true}); 
+
     },
 
     clearForm: function () {

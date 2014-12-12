@@ -12,7 +12,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <div class="col-md-4">
+                <div class="col-md-4" id="formContainer">
                     <form class="form " action="" method="post" role="form" id="addContact">
                         <div class="form-group">
                             <label class="" for="first_name">First Name</label>
@@ -47,9 +47,9 @@
                 </div>
             </div>
         </div>
-        <div id="tableContacts" class="">
-            <div class="row">
-                <div class="col-lg-12">
+        <div class="row">
+            <div class="col-lg-12" id="#tableContainer">
+                <div id="tableContacts" class="">
                     <table class="table table-condensed table-bordered table-hover">
                         <thead>
                             <tr>
@@ -86,7 +86,7 @@
     <script src="assets/js/views.js"></script>
     <script src="assets/js/router.js"></script>
     <script type="text/javascript" charset="utf-8">
-        new App.Router;
+        var router = new App.Router;
         Backbone.history.start();
 
         App.contacts = new App.Collections.Contacts;

@@ -1,6 +1,7 @@
 /bootstrap/compiled.php
-/vendor
 composer.phar
+/vendor
+/app/config/bruno
 composer.lock
 .env.*.php
 .env.php
