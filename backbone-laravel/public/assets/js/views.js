@@ -3,6 +3,7 @@ App.Views.App = Backbone.View.extend({
     initialize: function(){
         var addContactView = new App.Views.AddContact({ collection: App.contacts }); 
         var allContactsView = new App.Views.Contacts({ collection: App.contacts }).render(); 
+        var allContactsView = new App.Views.Contacts({ collection: App.contacts }).render(); 
         $('#tableContacts thead').after(allContactsView.el);
     }
 
@@ -78,7 +79,6 @@ App.Views.Contact = Backbone.View.extend({
 
     events:{
         'click a.delete':'deleteContact', 
-        'click a.edit'  :'editContact' 
     },
 
     deleteContact: function () {
@@ -95,3 +95,77 @@ App.Views.Contact = Backbone.View.extend({
     },
 });
 
+//Single contact full vview
+App.Views.ContactFull = Backbone.View.extend({
+    initialize: function () {
+        this.render();
+        
+    },
+
+    tagName: 'div',
+
+    el:'div#contactContainer', 
+
+    render: function() {
+        var contact = this.model.get(this.id); 
+
+        if(_.isUndefined(contact)){
+            router.navigate('/404');        
+            return this
+        }
+
+        this.$el.html( this.template( this.model.get(this.id).toJSON()) );
+        return this;
+    },
+
+    template: template('oneContactTemplate'),
+
+});
+
+App.Views.EditContact = Backbone.View.extend({
+    initialize: function (){
+        this.render(); 
+        this.first_name = $('#edit_first_name');
+        this.last_name = $('#edit_last_name');
+        this.email = $('#edit_email');
+        this.description = $('#edit_description');
+    },
+
+
+    el:'div#editFormContainer',
+    
+    events:{
+        'submit':'editContact' 
+    },
+
+    editContact: function (e) {
+        e.preventDefault();
+        var contact = this.model.get(this.id);
+        contact.save({
+            id: this.id,
+            fist_name: this.first_name,
+            last_name: this.last_name,
+            email: this.email,
+            description: this.description,
+        });
+
+        router.navigate('/', {trigger: true});
+    },
+
+    template: template('editForm'),
+
+    tagName: 'div',
+
+    render: function() {
+
+        if(_.isUndefined(this.model.get(this.id))){
+            router.navigate('/404');        
+            return this
+        }
+
+        this.$el.html( this.template( this.model.get(this.id).toJSON()) );
+        return this;
+    },
+
+
+});
